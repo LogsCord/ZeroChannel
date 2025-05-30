@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { Command } from "commander";
 import { input } from "@inquirer/prompts";
 import { NAME, DESCRIPTION, VERSION } from "./config/constants.js";

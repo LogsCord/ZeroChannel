@@ -1,5 +1,5 @@
 {
-	"name": "zerochannel-cli",
+	"name": "zerochannel",
 	"version": "0.0.1",
 	"description": "ZeroChannel CLI",
 	"type": "module",
