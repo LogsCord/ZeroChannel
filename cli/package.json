@@ -1,49 +1,49 @@
 {
-	"name": "zerochannel",
-	"version": "0.0.2",
-	"description": "ZeroChannel CLI",
-	"type": "module",
-	"main": "dist/index.js",
-	"bin": {
-		"zerochannel": "dist/index.js"
-	},
-	"homepage": "https://github.com/LogsCord/ZeroChannel",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/LogsCord/ZeroChannel.git"
-	},
-	"bugs": {
-		"url": "https://github.com/LogsCord/ZeroChannel/issues"
-	},
-	"scripts": {
-		"build": "tsc",
-		"start": "tsc && node --enable-source-maps .",
-		"prepublishOnly": "pnpm build"
-	},
-	"author": "RealAlphabet <alphabet@lumzapp.com>",
-	"license": "SEE LICENSE",
-	"engines": {
-		"node": ">=18.0.0"
-	},
-	"files": [
-		"dist"
-	],
-	"packageManager": "pnpm@10.7.0",
-	"dependencies": {
-		"@inquirer/prompts": "^7.5.3",
-		"axios": "^1.9.0",
-		"chalk": "^5.4.1",
-		"commander": "^14.0.0",
-		"express": "^5.1.0",
-		"js-yaml": "^4.1.0",
-		"jsonwebtoken": "^9.0.2",
-		"ws": "^8.18.2"
-	},
-	"devDependencies": {
-		"@types/express": "^5.0.2",
-		"@types/js-yaml": "^4.0.9",
-		"@types/jsonwebtoken": "^9.0.9",
-		"@types/ws": "^8.18.1",
-		"typescript": "^5.8.3"
-	}
+    "name": "zerochannel",
+    "version": "0.0.3",
+    "description": "ZeroChannel CLI",
+    "type": "module",
+    "main": "dist/index.js",
+    "bin": {
+        "zerochannel": "dist/index.js"
+    },
+    "homepage": "https://github.com/LogsCord/ZeroChannel",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/LogsCord/ZeroChannel.git"
+    },
+    "bugs": {
+        "url": "https://github.com/LogsCord/ZeroChannel/issues"
+    },
+    "scripts": {
+        "build": "tsc",
+        "start": "tsc && node --enable-source-maps .",
+        "prepublishOnly": "pnpm build"
+    },
+    "author": "RealAlphabet <alphabet@lumzapp.com>",
+    "license": "SEE LICENSE",
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "files": [
+        "dist"
+    ],
+    "packageManager": "pnpm@10.7.0",
+    "dependencies": {
+        "@inquirer/prompts": "^7.5.3",
+        "axios": "^1.9.0",
+        "chalk": "^5.4.1",
+        "commander": "^14.0.0",
+        "express": "^5.1.0",
+        "js-yaml": "^4.1.0",
+        "jsonwebtoken": "^9.0.2",
+        "ws": "^8.18.2"
+    },
+    "devDependencies": {
+        "@types/express": "^5.0.2",
+        "@types/js-yaml": "^4.0.9",
+        "@types/jsonwebtoken": "^9.0.9",
+        "@types/ws": "^8.18.1",
+        "typescript": "^5.8.3"
+    }
 }

@@ -1,31 +1,31 @@
 {
-	"name": "zerochannel-server",
-	"version": "0.0.1",
-	"description": "ZeroChannel tunnel server",
-	"type": "module",
-	"main": "dist/index.js",
-	"bin": {
-		"zerochannel-server": "dist/index.js"
-	},
-	"homepage": "https://github.com/LogsCord/ZeroChannel",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/LogsCord/ZeroChannel.git"
-	},
-	"bugs": {
-		"url": "https://github.com/LogsCord/ZeroChannel/issues"
-	},
-	"scripts": {
-		"build": "tsc",
-		"start": "tsc && node --enable-source-maps .",
-		"prepublishOnly": "pnpm build"
-	},
-	"keywords": [
-		"zerochannel",
-		"tunnel",
-		"server"
-	],
-	"author": "RealAlphabet <alphabet@lumzapp.com>",
+    "name": "zerochannel-server",
+    "version": "0.0.1",
+    "description": "ZeroChannel tunnel server",
+    "type": "module",
+    "main": "dist/index.js",
+    "bin": {
+        "zerochannel-server": "dist/index.js"
+    },
+    "homepage": "https://github.com/LogsCord/ZeroChannel",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/LogsCord/ZeroChannel.git"
+    },
+    "bugs": {
+        "url": "https://github.com/LogsCord/ZeroChannel/issues"
+    },
+    "scripts": {
+        "build": "tsc",
+        "start": "tsc && node --enable-source-maps .",
+        "prepublishOnly": "pnpm build"
+    },
+    "keywords": [
+        "zerochannel",
+        "tunnel",
+        "server"
+    ],
+    "author": "RealAlphabet <alphabet@lumzapp.com>",
     "license": "SEE LICENSE",
     "engines": {
         "node": ">=18.0.0"
@@ -33,20 +33,20 @@
     "files": [
         "dist"
     ],
-	"packageManager": "pnpm@10.7.0",
-	"dependencies": {
-		"express": "^5.1.0",
-		"js-yaml": "^4.1.0",
-		"jsonwebtoken": "^9.0.2",
-		"proxy-agent": "github:AnimeoTV/ProxyAgent",
-		"ws": "^8.18.2"
-	},
-	"devDependencies": {
-		"@types/express": "^5.0.2",
-		"@types/express-serve-static-core": "^5.0.6",
-		"@types/js-yaml": "^4.0.9",
-		"@types/jsonwebtoken": "^9.0.9",
-		"@types/ws": "^8.18.1",
-		"typescript": "^5.8.3"
-	}
+    "packageManager": "pnpm@10.7.0",
+    "dependencies": {
+        "express": "^5.1.0",
+        "js-yaml": "^4.1.0",
+        "jsonwebtoken": "^9.0.2",
+        "proxy-agent": "github:AnimeoTV/ProxyAgent",
+        "ws": "^8.18.2"
+    },
+    "devDependencies": {
+        "@types/express": "^5.0.2",
+        "@types/express-serve-static-core": "^5.0.6",
+        "@types/js-yaml": "^4.0.9",
+        "@types/jsonwebtoken": "^9.0.9",
+        "@types/ws": "^8.18.1",
+        "typescript": "^5.8.3"
+    }
 }
