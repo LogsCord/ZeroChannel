@@ -20,6 +20,9 @@ importers:
       proxy-agent:
         specifier: github:AnimeoTV/ProxyAgent
         version: https://codeload.github.com/AnimeoTV/ProxyAgent/tar.gz/29ec2f1190e828ebcdb6c65b4ee0cd05aeffd457
+      setns:
+        specifier: link:../setns
+        version: link:../setns
       ws:
         specifier: ^8.18.2
         version: 8.18.2

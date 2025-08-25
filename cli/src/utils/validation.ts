@@ -6,7 +6,9 @@ import { AxiosError } from 'axios';
 export function isValidUrl(url: string): boolean {
     try {
         new URL(url);
+
         return true;
+
     } catch {
         return false;
     }
@@ -17,6 +19,7 @@ export function isValidUrl(url: string): boolean {
  */
 export function handleAxiosError(error: unknown): string {
     if (error instanceof AxiosError) {
+
         // Gestion des erreurs de connectivité
         if (error.code === 'ECONNREFUSED') {
             return "Impossible de se connecter au serveur (connexion refusée)";

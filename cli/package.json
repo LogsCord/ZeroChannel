@@ -28,12 +28,13 @@
     "files": [
         "dist"
     ],
-    "packageManager": "pnpm@10.7.0",
+    "packageManager": "pnpm@10.15.0",
     "dependencies": {
         "@inquirer/prompts": "^7.5.3",
         "axios": "^1.9.0",
         "chalk": "^5.4.1",
         "commander": "^14.0.0",
+        "execa": "^9.6.0",
         "express": "^5.1.0",
         "js-yaml": "^4.1.0",
         "jsonwebtoken": "^9.0.2",

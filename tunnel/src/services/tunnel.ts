@@ -23,16 +23,16 @@ export function getRequestedService(session: AuthSession, req: Request) {
 
 export function createTunnel(ws: WebSocket, host: string, port: number): void {
     const client = new net.Socket();
-    
+
     client.connect(port, host, () => {
         client.on("data", chunk => ws.send(chunk));
         ws.on("message", data => client.write(data as Buffer));
-        
+
         client.on("error", () => ws.close());
         client.on("close", () => ws.close());
         ws.on("close", () => client.destroy());
     });
-    
+
     client.on("error", err => {
         console.error(`Erreur de connexion à ${host}:${port}:`, err.message);
         ws.close();

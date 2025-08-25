@@ -6,6 +6,7 @@ import { login } from "./commands/login.js";
 import { start } from "./commands/start.js";
 import { list } from "./commands/list.js";
 import { config } from "./commands/config.js";
+import { deploy } from "./commands/deploy.js";
 
 const program = new Command();
 
@@ -44,6 +45,20 @@ program
     .description("List available environments and services")
     .action(async () => {
         await list();
+    });
+
+program
+    .command("deploy")
+    .description("Deploy an environment")
+    .argument("[environment]", "Environment name")
+    .option("--repo <repo>", "Repository URL")
+    .option("--branch <branch>", "Branch name")
+    .action(async (env, options) => {
+        await deploy({
+            env,
+            repo: options.repo,
+            branch: options.branch
+        });
     });
 
 program.parse();

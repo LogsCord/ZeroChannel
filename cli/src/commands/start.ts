@@ -1,8 +1,8 @@
 import chalk from 'chalk';
 import { loadConfig } from "../config/loader.js";
+import { resolveLocalPort } from "../config/loader.js";
 import { getTunnels } from "../services/api.js";
 import { getFreePort, createTunnelServer } from "../utils/port.js";
-import { resolveLocalPort } from "../config/loader.js";
 import { displayError } from "../utils/error.js";
 
 export async function start(env: string): Promise<void> {
@@ -12,7 +12,7 @@ export async function start(env: string): Promise<void> {
 
         const { environments } = await getTunnels(config.server, config.token);
         const services = environments[env];
-        
+
         if (!services) {
             throw new Error(`Environment "${env}" not found or not accessible.`);
         }
@@ -32,6 +32,7 @@ export async function start(env: string): Promise<void> {
         }
 
         console.log(chalk.cyan('Services disponibles:'));
+
         for (const [name, svc] of Object.entries(services)) {
             try {
                 const localPort = resolveLocalPort(domain, env, name) || getFreePort();
@@ -44,6 +45,7 @@ export async function start(env: string): Promise<void> {
                     token: config.token,
                     localPort
                 });
+
             } catch (error) {
                 displayError(error);
             }

@@ -9,11 +9,11 @@ tinyWs({ router: router as any });
 
 router.ws("/:env/:service", (ws, req) => {
     const session = validateAuth(req);
-    if (!session) 
+    if (!session)
         return ws.close();
 
     const service = getRequestedService(session, req);
-    if (!service) 
+    if (!service)
         return ws.close();
 
     createTunnel(ws, service.host, service.port);

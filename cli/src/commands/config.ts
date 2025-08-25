@@ -1,13 +1,12 @@
-import fs from 'fs';
-import path from 'path';
+import os from 'node:os';
+import fs from 'node:fs';
+import path from 'node:path';
 import yaml from 'js-yaml';
 import chalk from 'chalk';
 import { loadConfig } from "../config/loader.js";
+import { EnvConfig } from "../config/loader.js";
 import { getTunnels } from "../services/api.js";
 import { displayError } from "../utils/error.js";
-import os from 'os';
-
-import { EnvConfig } from "../config/loader.js";
 
 export async function config(env: string): Promise<void> {
     try {
@@ -22,10 +21,10 @@ export async function config(env: string): Promise<void> {
 
         // Créer le dossier de configuration s'il n'existe pas
         const configDir = path.dirname(path.join(os.homedir(), '.zerochannel', domain, `${env}.yml`));
-        fs.mkdirSync(configDir, { recursive: true });
-
         const configPath = path.join(configDir, `${env}.yml`);
         let existingConfig: EnvConfig = {};
+
+        fs.mkdirSync(configDir, { recursive: true });
 
         // Charger la configuration existante si elle existe
         if (fs.existsSync(configPath)) {
@@ -38,11 +37,9 @@ export async function config(env: string): Promise<void> {
         const newConfig: EnvConfig = {};
 
         for (const [serviceName] of Object.entries(services)) {
-            // Utiliser le port existant s'il existe, sinon incrémenter nextPort
             const existingPort = existingConfig[serviceName]?.port;
-            newConfig[serviceName] = {
-                port: existingPort || nextPort
-            };
+            // Utiliser le port existant s'il existe, sinon incrémenter nextPort
+            newConfig[serviceName] = { port: existingPort || nextPort };
             nextPort++;
         }
 
@@ -52,7 +49,7 @@ export async function config(env: string): Promise<void> {
         console.log(chalk.green('✅ Configuration créée avec succès !'));
         console.log(chalk.yellow('\n💡 Fichier de configuration:'), configPath);
         console.log(chalk.yellow('📝 Vous pouvez maintenant modifier les ports dans ce fichier.\n'));
-        
+
         // Afficher la configuration actuelle
         console.log(chalk.cyan('Configuration actuelle:'));
         for (const [service, config] of Object.entries(newConfig)) {

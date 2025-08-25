@@ -13,10 +13,12 @@ export async function list(): Promise<void> {
         }
 
         console.log("🌍 Environnements disponibles :");
+
         for (const [envName, services] of Object.entries(environments)) {
-            console.log(`\n📁 ${envName}`);
             const serviceEntries = Object.entries(services);
-            
+
+            console.log(`\n📁 ${envName}`);
+
             if (serviceEntries.length === 0) {
                 console.log("   ℹ️ Aucun service disponible");
                 continue;

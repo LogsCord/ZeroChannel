@@ -16,7 +16,7 @@ router.post("/auth", (req, res) => {
     const { username, password } = req.body;
     const user = config.auth.users[username];
 
-    if (!user) 
+    if (!user)
         return void res.status(403).json({ error: "Invalid credentials" });
 
     const hash = crypto
@@ -24,7 +24,7 @@ router.post("/auth", (req, res) => {
         .update(password)
         .digest("hex");
 
-    if (hash !== user.password) 
+    if (hash !== user.password)
         return void res.status(403).json({ error: "Invalid credentials" });
 
     const { token, expires } = generateToken(username);
@@ -35,7 +35,7 @@ router.post("/auth", (req, res) => {
 router.get("/tunnels", (req, res) => {
     const session = validateAuth(req);
 
-    if (!session) 
+    if (!session)
         return void res.status(401).json({ error: "Invalid token" });
 
     const username = session.username;

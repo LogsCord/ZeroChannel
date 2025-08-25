@@ -1,0 +1,17 @@
+{
+  "name": "setns",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "node-gyp rebuild && tsc",
+    "install": "node-gyp rebuild",
+    "clean": "rimraf dist build"
+  },
+  "devDependencies": {
+    "node-addon-api": "^8.5.0",
+    "node-gyp": "^11.3.0",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.9.2"
+  }
+}
