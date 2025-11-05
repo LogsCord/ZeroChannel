@@ -33,11 +33,14 @@
     "files": [
         "dist"
     ],
-    "packageManager": "pnpm@10.7.0",
+    "packageManager": "pnpm@10.20.0",
     "dependencies": {
+        "@inquirer/prompts": "^7.9.0",
+        "execa": "^9.6.0",
         "express": "^5.1.0",
         "js-yaml": "^4.1.0",
         "jsonwebtoken": "^9.0.2",
+        "node-pty": "^1.0.0",
         "proxy-agent": "github:AnimeoTV/ProxyAgent",
         "setns": "link:../setns",
         "ws": "^8.18.2"

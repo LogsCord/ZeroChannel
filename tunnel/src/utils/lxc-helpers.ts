@@ -1,5 +1,7 @@
-import { execa, Options } from "execa";
+import pty from "node-pty";
 import { randomUUID } from "node:crypto";
+import { execa, Options, ResultPromise } from "execa";
+import type {Readable, Writable} from 'node:stream';
 
 export type LxcExecOpts = {
     env?: Record<string, string>;
@@ -7,11 +9,17 @@ export type LxcExecOpts = {
     timeoutMs?: number;
 };
 
+type LxcShell = {
+    process: pty.IPty;
+    write: (data: string) => void;
+};
+
 export type LxcContext = {
     name: string;
-    exec: (cmd: string, opts?: LxcExecOpts) => Promise<void>;
-    push: (src: string, destInContainer: string) => Promise<void>;
-    pull: (srcInContainer: string, dest: string) => Promise<void>;
+    exec(cmd: string, opts?: LxcExecOpts): Promise<void>;
+    push(src: string, destInContainer: string): Promise<void>;
+    pull(srcInContainer: string, dest: string): Promise<void>;
+    shell(): LxcShell;
 };
 
 type LxcOptions = {
@@ -53,9 +61,27 @@ export async function createLxc(options: LxcOptions & { ephemeral?: boolean }) {
 
     return <LxcContext>{
         name,
-        exec: async (cmd, opts) => { await lxcExecRaw(name, cmd, opts); },
-        push: async (src, dest) => { await sh("lxc", ["file", "push", src, `${name}/${dest}`]); },
-        pull: async (src, dest) => { await sh("lxc", ["file", "pull", `${name}/${src}`, dest]); },
+        async exec(cmd, opts) { await lxcExecRaw(name, cmd, opts); },
+        async push(src, dest) { await sh("lxc", ["file", "push", src, `${name}/${dest}`]); },
+        async pull(src, dest) { await sh("lxc", ["file", "pull", `${name}/${src}`, dest]); },
+        shell() {
+            // ✅ execa renvoie déjà un process avec ses streams
+            const childProcess = pty.spawn("lxc", ["shell", name], {
+                env: process.env,
+                cwd: "/usr/bin",
+                cols: 80,
+                rows: 24,
+            });
+
+            childProcess.onExit((data) => console.log("exit", data));
+
+            return {
+                process: childProcess,
+                write(data: string) {
+                    childProcess.write(data);
+                },
+            };
+        },
     };
 }
 
@@ -67,16 +93,16 @@ export async function createLxc(options: LxcOptions & { ephemeral?: boolean }) {
 export async function withEphemeralLxc<T>(options: LxcOptions, fn: (ctx: LxcContext) => Promise<T>): Promise<T> {
     const ctx = await createLxc({ ...options, ephemeral: true });
 
-    const cleanup = async () => {
+    async function cleanup() {
         try { await sh("lxc", ["stop", ctx.name]); } catch { }
         try { await sh("lxc", ["delete", ctx.name, "--force"]); } catch { }
-    };
+    }
 
     // Cleanup sur Ctrl-C / process exit
-    const onSig = async () => {
+    async function onSig() {
         await cleanup();
         process.exit(1);
-    };
+    }
 
     process.on("SIGINT", onSig);
     process.on("SIGTERM", onSig);

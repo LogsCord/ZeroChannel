@@ -1,3 +1,3 @@
 #!/bin/sh
-echo "ez"
+echo "ez" $@
 exit 0

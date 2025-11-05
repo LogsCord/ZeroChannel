@@ -7,6 +7,7 @@ import { start } from "./commands/start.js";
 import { list } from "./commands/list.js";
 import { config } from "./commands/config.js";
 import { deploy } from "./commands/deploy.js";
+import { sh } from "./commands/sh.js";
 
 const program = new Command();
 
@@ -59,6 +60,13 @@ program
             repo: options.repo,
             branch: options.branch
         });
+    });
+
+program
+    .command("sh")
+    .description("Open a shell in an ephemeral container")
+    .action(async () => {
+        await sh();
     });
 
 program.parse();

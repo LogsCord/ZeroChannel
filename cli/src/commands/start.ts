@@ -1,16 +1,17 @@
 import chalk from 'chalk';
 import { loadConfig } from "../config/loader.js";
 import { resolveLocalPort } from "../config/loader.js";
-import { getTunnels } from "../services/api.js";
+import { createAPI } from '../services/api.js';
 import { getFreePort, createTunnelServer } from "../utils/port.js";
 import { displayError } from "../utils/error.js";
 
 export async function start(env: string): Promise<void> {
     try {
+        const API = createAPI();
         const config = loadConfig();
         const domain = new URL(config.server).hostname;
 
-        const { environments } = await getTunnels(config.server, config.token);
+        const { environments } = await API.getTunnels();
         const services = environments[env];
 
         if (!services) {

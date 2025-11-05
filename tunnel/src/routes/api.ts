@@ -1,8 +1,10 @@
 import { Router } from "express";
 import crypto from "crypto";
 import { config } from "../config/loader.js";
-import { generateToken, validateAuth } from "../auth/jwt.js";
 import { Environment } from "../config/types.js";
+import { generateToken, validateAuth } from "../auth/jwt.js";
+import deployRoutes from "./deploy.js";
+import routeSh from "./sh.js";
 
 const router = Router();
 
@@ -48,5 +50,8 @@ router.get("/tunnels", (req, res) => {
 
     res.json({ user: username, environments: result });
 });
+
+router.use("/deploy", deployRoutes);
+router.post("/sh", routeSh);
 
 export default router;

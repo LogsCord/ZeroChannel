@@ -28,7 +28,7 @@
     "files": [
         "dist"
     ],
-    "packageManager": "pnpm@10.15.0",
+    "packageManager": "pnpm@10.20.0",
     "dependencies": {
         "@inquirer/prompts": "^7.8.4",
         "axios": "^1.11.0",
@@ -38,7 +38,8 @@
         "express": "^5.1.0",
         "js-yaml": "^4.1.0",
         "jsonwebtoken": "^9.0.2",
-        "ws": "^8.18.3"
+        "ws": "^8.18.3",
+        "yaml": "^2.8.1"
     },
     "devDependencies": {
         "@types/express": "^5.0.2",

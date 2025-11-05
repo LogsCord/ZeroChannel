@@ -3,6 +3,8 @@ import express from "express";
 import { tinyWs } from "proxy-agent";
 import apiRoutes from "./routes/api.js";
 import tunnelRoutes from "./routes/tunnel.js";
+import { validateAuth } from "./auth/jwt.js";
+import { getConnection } from "./utils/connection.js";
 
 const app = express();
 
@@ -13,6 +15,19 @@ tinyWs({ app: app as any });
 // Routes
 app.use("/api", apiRoutes);
 app.use("/tunnel", tunnelRoutes);
+
+// Events
+app.ws("/events/:uuid", (ws, req) => {
+    const session = validateAuth(req);
+    if (!session)
+        return ws.close();
+
+    const connection = getConnection(req.params.uuid);
+    if (!connection)
+        return ws.close();
+
+    connection.add(ws);
+});
 
 // Serve npm redirect on base path
 app.get("/", (_req, res) => {

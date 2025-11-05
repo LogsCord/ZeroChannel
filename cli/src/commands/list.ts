@@ -1,11 +1,11 @@
 import { loadConfig } from "../config/loader.js";
-import { getTunnels } from "../services/api.js";
+import { createAPI } from "../services/api.js";
 import { displayError } from "../utils/error.js";
 
 export async function list(): Promise<void> {
     try {
-        const config = loadConfig();
-        const { environments } = await getTunnels(config.server, config.token);
+        const API = createAPI();
+        const { environments } = await API.getTunnels();
 
         if (Object.keys(environments).length === 0) {
             console.log("❌ Aucun environnement disponible");
