@@ -1,7 +1,15 @@
 import pty from "node-pty";
 import { randomUUID } from "node:crypto";
-import { execa, Options, ResultPromise } from "execa";
-import type {Readable, Writable} from 'node:stream';
+import { execa, Options } from "execa";
+import { SignalConstants } from "node:os";
+import { Logger } from "./connection.js";
+
+export type LxcCreateOptions = {
+    image?: string;
+    profile?: string;
+    name?: string;
+    logger: Logger;
+};
 
 export type LxcExecOpts = {
     env?: Record<string, string>;
@@ -9,80 +17,111 @@ export type LxcExecOpts = {
     timeoutMs?: number;
 };
 
-type LxcShell = {
-    process: pty.IPty;
-    write: (data: string) => void;
-};
+export class LxcShell {
+    constructor(public process: pty.IPty) {}
 
-export type LxcContext = {
-    name: string;
-    exec(cmd: string, opts?: LxcExecOpts): Promise<void>;
-    push(src: string, destInContainer: string): Promise<void>;
-    pull(srcInContainer: string, dest: string): Promise<void>;
-    shell(): LxcShell;
-};
-
-type LxcOptions = {
-    image?: string;
-    profile?: string;
-    name?: string;
-};
-
-async function sh(cmd: string, args: string[], opts: Options = {}) {
-    return execa(cmd, args, { stdio: "inherit", ...opts });
+    write(data: string) {
+        this.process.write(data);
+    }
 }
 
-async function lxcExecRaw(name: string, script: string, opts?: LxcExecOpts) {
-    const envPairs = opts?.env
-        ? Object.entries(opts.env).map(([k, v]) => `${k}='${v.replace(/'/g, `'\\''`)}'`).join(" ")
-        : "";
+export class LxcContainer {
+    constructor(
+        public executor: LoggerExecutor,
+        public name: string
+    ) {}
 
-    const cwd = opts?.cwd ? `cd '${opts.cwd.replace(/'/g, `'\\''`)}' && ` : "";
-    const bash = `${envPairs ? `export ${envPairs}; ` : ""}${cwd}${script}`;
-    const p = await sh("lxc", ["exec", name, "--", "bash", "-lc", bash], {
-        forceKillAfterDelay: 5000,
-        timeout: opts?.timeoutMs || 0,
+    async exec(cmd: string, opts?: LxcExecOpts) {
+        await this.executor.lxcExecRaw(this.name, cmd, opts);
+    }
+
+    async push(src: string, dest: string) {
+        await this.executor.spawn("lxc", ["file", "push", src, `${this.name}/${dest}`]);
+    }
+
+    async pull(src: string, dest: string) {
+        await this.executor.spawn("lxc", ["file", "pull", `${this.name}/${src}`, dest]);
+    }
+
+    shell(): LxcShell {
+        // ✅ execa renvoie déjà un process avec ses streams
+        const childProcess = pty.spawn("lxc", ["shell", this.name], {
+            env: process.env,
+            cwd: "/usr/bin",
+            cols: 80,
+            rows: 24,
+        });
+
+        childProcess.onExit((data) => console.log("exit", data));
+        return new LxcShell(childProcess);
+    }
+};
+
+function sh(cmd: string, args: string[], opts: Options = {}) {
+    const process = execa(cmd, args, {
+        ...opts,
+        stdin   : "pipe",
+        stdout  : "pipe",
+        stderr  : "pipe",
     });
 
-    return p;
-}
+    process.stdin.end();
 
-export async function createLxc(options: LxcOptions & { ephemeral?: boolean }) {
-    const image = options.image || "images:debian/12";
-    const profile = options.profile || "zc-build";
-    const name = options.name || `zc-${randomUUID().slice(0, 8)}`;
-
-    // Création profil réseau/limites en amont si besoin
-    await sh("lxc", [
-        "launch", image, name,
-        "-p", profile,
-        ...(options.ephemeral ? ["--ephemeral"] : [])
-    ]);
-
-    return <LxcContext>{
-        name,
-        async exec(cmd, opts) { await lxcExecRaw(name, cmd, opts); },
-        async push(src, dest) { await sh("lxc", ["file", "push", src, `${name}/${dest}`]); },
-        async pull(src, dest) { await sh("lxc", ["file", "pull", `${name}/${src}`, dest]); },
-        shell() {
-            // ✅ execa renvoie déjà un process avec ses streams
-            const childProcess = pty.spawn("lxc", ["shell", name], {
-                env: process.env,
-                cwd: "/usr/bin",
-                cols: 80,
-                rows: 24,
-            });
-
-            childProcess.onExit((data) => console.log("exit", data));
-
-            return {
-                process: childProcess,
-                write(data: string) {
-                    childProcess.write(data);
-                },
-            };
+    return {
+        stdin   : process.stdin,
+        stdout  : process.stdout,
+        stderr  : process.stderr,
+        kill(signal?: keyof SignalConstants | number, error?: Error) {
+            process.kill(signal, error);
+        },
+        then(...args: Parameters<typeof process.then>) {
+            return process.then(...args);
+        },
+        catch(...args: Parameters<typeof process.catch>) {
+            return process.catch(...args);
         },
     };
+}
+
+class LoggerExecutor {
+    constructor(public logger: Logger) {}
+
+    async spawn(cmd: string, args: string[], opts: Options = {}) {
+        const execution = sh(cmd, args, opts);
+
+        execution.stdout.on("data", (data) => this.logger.info(data.toString()));
+        execution.stderr.on("data", (data) => this.logger.error(data.toString()));
+        return await execution;
+    }
+
+    async lxcExecRaw(name: string, script: string, opts?: LxcExecOpts) {
+        const envPairs = opts?.env
+            ? Object.entries(opts.env).map(([k, v]) => `${k}='${v.replace(/'/g, `'\\''`)}'`).join(" ")
+            : "";
+
+        const cwd = opts?.cwd ? `cd '${opts.cwd.replace(/'/g, `'\\''`)}' && ` : "";
+        const bash = `${envPairs ? `export ${envPairs}; ` : ""}${cwd}${script}`;
+
+        return await this.spawn("lxc", ["exec", name, "--", "bash", "-lc", bash], {
+            forceKillAfterDelay: 5000,
+            timeout: opts?.timeoutMs || 0,
+        });
+    }
+
+    async createLxc(options: LxcCreateOptions & { ephemeral?: boolean }) {
+        const image = options.image || "images:debian/12";
+        const profile = options.profile || "zc-build";
+        const name = options.name || `zc-${randomUUID().slice(0, 8)}`;
+
+        // Création profil réseau/limites en amont si besoin
+        await this.spawn("lxc", [
+            "launch", image, name,
+            "-p", profile,
+            ...(options.ephemeral ? ["--ephemeral"] : [])
+        ]);
+
+        return new LxcContainer(this, name);
+    }
 }
 
 /**
@@ -90,12 +129,13 @@ export async function createLxc(options: LxcOptions & { ephemeral?: boolean }) {
  * - image: ex. "images:debian/12"
  * - profile: ex. "zc-build"
  */
-export async function withEphemeralLxc<T>(options: LxcOptions, fn: (ctx: LxcContext) => Promise<T>): Promise<T> {
-    const ctx = await createLxc({ ...options, ephemeral: true });
+export async function withEphemeralLxc<T>(options: LxcCreateOptions, fn: (ctx: LxcContainer) => Promise<T>): Promise<T> {
+    const executor = new LoggerExecutor(options.logger);
+    const ctx = await executor.createLxc({ ...options, ephemeral: true });
 
     async function cleanup() {
-        try { await sh("lxc", ["stop", ctx.name]); } catch { }
-        try { await sh("lxc", ["delete", ctx.name, "--force"]); } catch { }
+        try { await executor.spawn("lxc", ["stop", ctx.name]); } catch { }
+        try { await executor.spawn("lxc", ["delete", ctx.name, "--force"]); } catch { }
     }
 
     // Cleanup sur Ctrl-C / process exit

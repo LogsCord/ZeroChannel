@@ -100,8 +100,8 @@ export class Connection {
 
     get logger(): Logger {
         return {
-            info: (message: string) => this.send({ type: "info", message }),
-            error: (message: string) => this.send({ type: "error", message }),
+            info: (message: string) => this.sendPacket(PacketType.Stdout, Buffer.from(message)),
+            error: (message: string) => this.sendPacket(PacketType.Stderr, Buffer.from(message)),
         };
     }
 }

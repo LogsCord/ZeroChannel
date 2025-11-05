@@ -47,7 +47,8 @@ async function deploy(options: DeployOptions, logger: Logger): Promise<DeployRes
 
     await withEphemeralLxc({
         image: "images:debian/12",
-        profile: "zc-build"
+        profile: "zc-build",
+        logger
     }, async (lxc) => {
 
         // 1) deps & BuildKit rootless
@@ -180,12 +181,11 @@ router.post("/", express.json(), async (req, res) => {
 
     res.json({ uuid: connection.uuid });
 
-    logger.info("🚀 Début du déploiement");
     (async () => {
         try {
-            // const result = await deploy({ envName, repoUrl, branch, gitUser, gitToken }, logger);
-            // logger.info("✅ Deployment terminé");
-            // connection.send({ type: "result", result });
+            const result = await deploy({ envName, repoUrl, branch, gitUser, gitToken }, logger);
+            logger.info("✅ Deployment terminé");
+            connection.send({ type: "result", result });
 
         } catch (error) {
             logger.error(error);

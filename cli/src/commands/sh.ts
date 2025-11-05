@@ -51,8 +51,8 @@ export async function sh() {
         });
 
         // écoute du redimensionnement
-        process.stdout.on("resize", () => sendResize(stream));
-        sendResize(stream);
+        // process.stdout.on("resize", () => sendResize(stream));
+        // sendResize(stream);
 
         // Configuration du terminal
         process.stdin.setRawMode(true);
