@@ -1,9 +1,10 @@
 import fs from "fs";
 import YAML from "yaml";
-import { input, password, confirm } from "@inquirer/prompts";
-import { displayError } from "../utils/error.js";
-import { createAPI, DeployOptions } from "../services/api.js";
 import { promisify } from "util";
+import { input, password, confirm } from "@inquirer/prompts";
+import { createAPI, DeployOptions } from "../services/api.js";
+import { displayError } from "../utils/error.js";
+import { setupConsole } from "../utils/console.js";
 
 type CmdDeployOptions = {
     env?: string;
@@ -72,9 +73,7 @@ export async function deploy(options: CmdDeployOptions) {
 
         const { stream } = await API.deploy(deployOptions);
 
-        stream.on("data", (data) => {
-            console.log(data);
-        });
+        setupConsole(stream);
 
     } catch (error) {
         displayError(error);
