@@ -8,6 +8,9 @@ import { list } from "./commands/list.js";
 import { config } from "./commands/config.js";
 import { deploy } from "./commands/deploy.js";
 import { sh } from "./commands/sh.js";
+import { setSecret } from "./commands/secrets/set.js";
+import { listSecrets } from "./commands/secrets/list.js";
+import { deleteSecret } from "./commands/secrets/delete.js";
 
 const program = new Command();
 
@@ -67,6 +70,50 @@ program
     .description("Open a shell in an ephemeral container")
     .action(async () => {
         await sh();
+    });
+
+const secretsProgram = program
+    .command("secrets")
+    .description("Secrets management");
+
+secretsProgram
+    .command("set")
+    .description("Set a secret")
+    .argument("<name>", "Secret name")
+    .option("--infra <infra>", "Infrastructure name")
+    .option("--project <project>", "Project name")
+    .action(async (name, options) => {
+        await setSecret({
+            name,
+            infraName: options.infra,
+            projectName: options.project,
+        });
+    });
+
+secretsProgram
+    .command("list")
+    .description("List secrets")
+    .option("--infra <infra>", "Infrastructure name")
+    .option("--project <project>", "Project name")
+    .action(async (options) => {
+        await listSecrets({
+            infraName: options.infra,
+            projectName: options.project,
+        });
+    });
+
+secretsProgram
+    .command("delete")
+    .description("Delete a secret")
+    .argument("<name>", "Secret name")
+    .option("--infra <infra>", "Infrastructure name")
+    .option("--project <project>", "Project name")
+    .action(async (name, options) => {
+        await deleteSecret({
+            name,
+            infraName: options.infra,
+            projectName: options.project,
+        });
     });
 
 program.parse();

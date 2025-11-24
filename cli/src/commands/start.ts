@@ -7,8 +7,8 @@ import { displayError } from "../utils/error.js";
 
 export async function start(env: string): Promise<void> {
     try {
-        const API = createAPI();
         const config = loadConfig();
+        const API = createAPI(config);
         const domain = new URL(config.server).hostname;
 
         const { environments } = await API.getTunnels();
